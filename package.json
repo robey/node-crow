@@ -1,6 +1,6 @@
 {
   "name": "crow-metrics",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "description": "small metrics collector for node",
   "keywords": [
     "metrics",
