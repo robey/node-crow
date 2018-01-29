@@ -21,7 +21,7 @@
     "test": "npm run build && mocha -R spec --colors lib/test --timeout 30000"
   },
   "dependencies": {
-    "rxjs": "5.3.0"
+    "rxjs": "^5.5.6"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.32",
