@@ -1,5 +1,7 @@
 # crow-metrics
 
+[![Build Status](https://travis-ci.org/robey/crow-metrics.svg?branch=master)](https://travis-ci.org/robey/crow-metrics)
+
 <img src="docs/crow-small.png" align="right">
 
 Crow is a library for collecting metrics about your server, similar to Twitter's Ostrich or Netflix's Servo.(\*) It helps you track things like:
