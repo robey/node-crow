@@ -10,5 +10,6 @@ export { deltaSnapshots } from "./crow/transforms/delta";
 export { RingBuffer, RingBufferOptions } from "./crow/transforms/ring";
 export { tagDistribution } from "./crow/transforms/tag_distribution";
 
+export { exportGraphite } from "./crow/exporters/graphite";
 export { exportInfluxDb } from "./crow/exporters/influxdb";
 export { exportPrometheus } from "./crow/exporters/prometheus";
