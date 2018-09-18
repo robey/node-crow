@@ -363,6 +363,25 @@ Methods:
 Several exporters are included to make it easy to forward snapshots to aggregators. More may be included in the future.
 
 
+### exportGraphite
+
+[Graphite](https://graphiteapp.org/) is the oldest/simplest format for exporting metrics. It listens on a raw TCP socket and expects to receive each metric on its own line, with a name, value, and timestamp.
+
+The graphite exporter formats each snapshot into a set of lines, connects to the configured host/port, dumps them, and disconnects.
+
+```javascript
+const metrics = Metrics.create();
+metrics.events.attach(exportGraphite({ hostname: "my.graphite.server:2003" }));
+```
+
+Options:
+  - `hostname` - graphite host and port (default: "graphite.local:2003")
+  - `timeout` (in milliseconds) - how long to wait on each connection before giving up
+  - `tagDivider` - when a metric name has tags, what should we use to divide the name from each tag? (default: ";")
+  - `tagSeparator` - when a metric name has tags, what should we use to separate each tag's key and value? (default: "=")
+  - `log` - bunyan-style log for reporting errors
+
+
 ### exportInfluxDb
 
 [InfluxDB](https://influxdb.com/) expects to receive an HTTP `POST` containing a summary of metrics from each server at a regular interval.
@@ -373,8 +392,6 @@ The InfluxDB exporter receives each snapshot as it's computed, formats it into a
 const metrics = Metrics.create();
 metrics.events.attach(exportInfluxDb({ hostname: "my.influx.server:8086", database: "mydb" }));
 ```
-
-- `exportInfluxDb(events: EventSource<Snapshot>, options: ExportInfluxDbOptions = {})`
 
 Options:
 
