@@ -96,6 +96,7 @@ export class Registry {
     while (duration < 0) duration += this.period;
     if (this.timer) clearTimeout(this.timer);
     this.timer = setTimeout(() => this.publish(nextTime), duration);
+    this.timer.unref();
   }
 
   // timestamp is optional. exposed for testing.
