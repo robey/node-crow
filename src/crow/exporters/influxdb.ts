@@ -20,6 +20,9 @@ export interface ExportInfluxDbOptions {
 
   // how long to wait on each POST before giving up (msec)
   timeout?: number;
+  
+  // precision of timestamp sent with POST (ns,u,µ,ms,s,m,h)
+  precision?: string;
 
   // bunyan-style log for reporting errors
   log?: BunyanLike;
@@ -43,7 +46,8 @@ export interface ExportInfluxDbOptions {
 export function exportInfluxDb(options: ExportInfluxDbOptions = {}): Listener<Snapshot> {
   const hostname = options.hostname || DEFAULT_HOSTNAME;
   const database = options.database || DEFAULT_DATABASE;
-  const postUrl = options.url || `http://${hostname}/write?db=${database}`;
+  const precision = options.precision || "ms";
+  const postUrl = ( options.url || `http://${hostname}/write?db=${database}`) + `&precision=${precision}`;
   const timeout = options.timeout || 5000;
   const defaultFieldName = options.fieldName || "value";
 
@@ -60,7 +64,7 @@ export function exportInfluxDb(options: ExportInfluxDbOptions = {}): Listener<Sn
         const name = metric.format((k, v) => `${k}=${v}`, list => "," + list.join(","));
         const fieldName = metric.fieldName || defaultFieldName;
         // add zeros to timestamp to make it nanoseconds instead of milliseconds.
-        lines.push(`${name} ${fieldName}=${value} ${snapshot.timestamp}000000`);
+        lines.push(`${name} ${fieldName}=${value} ${snapshot.timestamp}`);
       }
       const document = lines.join("\n") + "\n";
 
