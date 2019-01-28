@@ -1,8 +1,8 @@
-import { EventSource, Listener } from "../events";
+import { Listener } from "../events";
 import { BunyanLike } from "../registry";
 import { Snapshot } from "../snapshot";
 import { deltaSnapshots } from "../transforms/delta";
-import { httpPost } from "./post";
+import { httpPost, Post } from "./post";
 
 const DEFAULT_HOSTNAME = "influxdb.local:8086";
 const DEFAULT_DATABASE = "test";
@@ -28,7 +28,7 @@ export interface ExportInfluxDbOptions {
   fieldName?: string;
 
   // for testing:
-  httpPost?: (postUrl: string, text: string, timeout: number, log?: BunyanLike) => Promise<void>;
+  httpPost?: Post;
 }
 
 /*
@@ -44,7 +44,7 @@ export function exportInfluxDb(options: ExportInfluxDbOptions = {}): Listener<Sn
   const hostname = options.hostname || DEFAULT_HOSTNAME;
   const database = options.database || DEFAULT_DATABASE;
   const postUrl = options.url || `http://${hostname}/write?db=${database}`;
-  const timeout = options.timeout || 5000;
+  const timeout = options.timeout || DEFAULT_TIMEOUT;
   const defaultFieldName = options.fieldName || "value";
 
   const deltas = deltaSnapshots();
@@ -66,7 +66,7 @@ export function exportInfluxDb(options: ExportInfluxDbOptions = {}): Listener<Sn
 
       if (options.log) options.log.trace("Sending metrics to influxdb...");
       try {
-        await (options.httpPost || httpPost)(postUrl, document, timeout, options.log);
+        await (options.httpPost || httpPost)(postUrl, document, timeout, {}, options.log);
       } catch (error) {
         if (options.log) options.log.error({ err: error }, "Unable to write metrics to influxdb");
       }

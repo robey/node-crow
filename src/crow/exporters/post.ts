@@ -5,11 +5,27 @@ import { BunyanLike } from "../registry";
 
 let counter = 0;
 
+export type Headers = { [name: string]: string };
+
+export type Post = (
+  postUrl: string,
+  text: string,
+  timeout: number,
+  headers: Headers,
+  log?: BunyanLike
+) => Promise<void>;
+
 /*
  * simple HTTP POST in node.js, which needs a bit more hand-holding than
  * i'd like.
  */
-export async function httpPost(postUrl: string, text: string, timeout: number, log?: BunyanLike): Promise<void> {
+export async function httpPost(
+  postUrl: string,
+  text: string,
+  timeout: number,
+  headers: Headers,
+  log?: BunyanLike
+): Promise<void> {
   const requestId = ++counter;
   const body = Buffer.from(text);
   if (log) log.trace(`http ${requestId}: POST ${postUrl} ${body.length}`);
@@ -17,6 +33,7 @@ export async function httpPost(postUrl: string, text: string, timeout: number, l
   const httpOptions = url.parse(postUrl) as http.RequestOptions;
   httpOptions.method = "POST";
   httpOptions.headers = { "Content-type": "text/plain", "Content-length": body.length };
+  Object.assign(httpOptions.headers, headers);
   httpOptions.timeout = timeout;
   const useHttps = httpOptions.protocol == "https:";
 
