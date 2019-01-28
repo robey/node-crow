@@ -1,4 +1,4 @@
-import { BunyanLike, exportInfluxDb, Metrics } from "../";
+import { BunyanLike, exportInfluxDb, Headers, Metrics } from "../";
 
 import "should";
 import "source-map-support/register";
@@ -8,7 +8,7 @@ describe("exportInfluxDb", () => {
   let m: Metrics;
 
   const saved: Array<{ postUrl: string, text: string }> = [];
-  const httpPost = (postUrl: string, text: string, timeout: number, log?: BunyanLike) => {
+  const httpPost = (postUrl: string, text: string, timeout: number, headers: Headers, log?: BunyanLike) => {
     saved.push({ postUrl, text });
     return Promise.resolve();
   };

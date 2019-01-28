@@ -369,6 +369,8 @@ Several exporters are included to make it easy to forward snapshots to aggregato
 
 The graphite exporter formats each snapshot into a set of lines, connects to the configured host/port, dumps them, and disconnects.
 
+Alternatively, for a service like sumo, it can use HTTP(S) to post the graphite document to an URL.
+
 ```javascript
 const metrics = Metrics.create();
 metrics.events.attach(exportGraphite({ hostname: "my.graphite.server:2003" }));
@@ -376,6 +378,8 @@ metrics.events.attach(exportGraphite({ hostname: "my.graphite.server:2003" }));
 
 Options:
   - `hostname` - graphite host and port (default: "graphite.local:2003")
+  - `url` - (instead of `hostname`) where to `POST` the graphite metrics
+  - `headers` - optional headers to attach to the `POST`
   - `timeout` (in milliseconds) - how long to wait on each connection before giving up
   - `tagDivider` - when a metric name has tags, what should we use to divide the name from each tag? (default: ";")
   - `tagSeparator` - when a metric name has tags, what should we use to separate each tag's key and value? (default: "=")

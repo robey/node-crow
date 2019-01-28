@@ -12,4 +12,5 @@ export { tagDistribution } from "./crow/transforms/tag_distribution";
 
 export { exportGraphite } from "./crow/exporters/graphite";
 export { exportInfluxDb } from "./crow/exporters/influxdb";
+export { Headers, Post } from "./crow/exporters/post";
 export { exportPrometheus } from "./crow/exporters/prometheus";

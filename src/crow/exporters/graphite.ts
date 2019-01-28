@@ -1,10 +1,10 @@
 import * as net from "net";
 import { Listener, Transform } from "../events";
+import { Headers, httpPost, Post } from "./post";
 import { BunyanLike } from "../registry";
 import { Snapshot } from "../snapshot";
 import { deltaSnapshots } from "../transforms/delta";
 
-const DEFAULT_HOSTNAME = "graphite.local:2003";
 const DEFAULT_PORT = 2003;
 const DEFAULT_TIMEOUT = 5000;
 const DEFAULT_TAG_DIVIDER = ";";
@@ -13,6 +13,9 @@ const DEFAULT_TAG_SEPARATOR = "=";
 export interface ExportGraphiteOptions {
   // graphite host and port
   hostname?: string;
+  // or: use an url for services like sumo
+  url?: string;
+  headers?: Headers;
 
   // how long to wait on each connection before giving up (msec)
   timeout?: number;
@@ -25,6 +28,9 @@ export interface ExportGraphiteOptions {
 
   // bunyan-style log for reporting errors
   log?: BunyanLike;
+
+  // for testing:
+  httpPost?: Post;
 }
 
 /*
@@ -42,24 +48,34 @@ export interface ExportGraphiteOptions {
  * "All graphite messages are of the following form. `metric_path value timestamp\n`"
  */
 export function exportGraphite(options: ExportGraphiteOptions = {}): Listener<Snapshot> {
-  const hostname = options.hostname || DEFAULT_HOSTNAME;
-  const timeout = options.timeout || 5000;
+  const timeout = options.timeout || DEFAULT_TIMEOUT;
   const tagDivider = options.tagDivider || DEFAULT_TAG_DIVIDER;
   const tagSeparator = options.tagSeparator || DEFAULT_TAG_SEPARATOR;
+
+  if (options.hostname === undefined && options.url === undefined) throw new Error("Requires hostname or url");
 
   const generate = generateGraphite(tagDivider, tagSeparator);
   return {
     async post(item: Snapshot) {
       const document = generate(item);
 
-      if (options.log) options.log.trace(`Sending metrics to graphite at ${hostname} ...`);
-      try {
-        const socket = await connect(hostname, timeout);
-        socket.write(document);
-        socket.end();
-        await new Promise(resolve => socket.once("end", resolve));
-      } catch (error) {
-        if (options.log) options.log.error({ err: error }, "Unable to write metrics to graphite");
+      if (options.hostname) {
+        if (options.log) options.log.trace(`Sending metrics to graphite at ${options.hostname} ...`);
+        try {
+          const socket = await connect(options.hostname, timeout);
+          socket.write(document);
+          socket.end();
+          await new Promise(resolve => socket.once("end", resolve));
+        } catch (error) {
+          if (options.log) options.log.error({ err: error }, "Unable to write metrics to graphite");
+        }
+      } else if (options.url) {
+        if (options.log) options.log.trace(`Sending metrics to graphite at ${options.url} ...`);
+        try {
+          await (options.httpPost || httpPost)(options.url, document, timeout, options.headers || {}, options.log);
+        } catch (error) {
+          if (options.log) options.log.error({ err: error }, "Unable to write metrics to graphite");
+        }
       }
     }
   };
