@@ -44,7 +44,7 @@ describe("exportGraphite", () => {
   it("reports empty metrics", async () => {
     const server = await listen(0);
     const text = acceptOne(server);
-    const hostname = `localhost:${server.address().port}`;
+    const hostname = `localhost:${(server.address() as net.AddressInfo).port}`;
 
     m.events.attach(exportGraphite({ hostname, timeout: 500 }));
     m.registry.publish();
@@ -54,7 +54,7 @@ describe("exportGraphite", () => {
   it("reports actual metrics", async () => {
     const server = await listen(0);
     const text = acceptOne(server);
-    const hostname = `localhost:${server.address().port}`;
+    const hostname = `localhost:${(server.address() as net.AddressInfo).port}`;
 
     m.events.attach(exportGraphite({ hostname, tagDivider: ".", tagSeparator: "_" }));
     m.increment(m.counter("tickets"), 5);
@@ -80,7 +80,7 @@ describe("exportGraphite", () => {
   it("reports carbon 2 metrics", async () => {
     const server = await listen(0);
     const text = acceptOne(server);
-    const hostname = `localhost:${server.address().port}`;
+    const hostname = `localhost:${(server.address() as net.AddressInfo).port}`;
 
     m.events.attach(exportGraphite({ hostname, tagDivider: ".", tagSeparator: "_" }));
     m.increment(m.counter("tickets"), 5);
